@@ -1,0 +1,2 @@
+StationId, StationName, StationMap, LegendConfig
+admiralty, Admiralty Station, maps/Admiralty.json, legends/Admiralty_legend.json
