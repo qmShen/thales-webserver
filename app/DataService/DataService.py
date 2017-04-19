@@ -1,10 +1,21 @@
 # StationId, StationName, StationMap
+import time
 import json
+from pymongo import MongoClient
+import pymongo
+HOST = '127.0.0.1'
+PORT = 27017
+DB = 'mapping'
 
 class DataService:
     def __init__(self, configPath):
+        self.client = MongoClient(HOST, PORT)
+        self.db = self.client[DB]
+        if configPath == None:
+            return
         self.config_path = configPath
         self.init_config()
+
 
     def init_config(self):
         with open(self.config_path, 'r') as configFile:
@@ -21,7 +32,7 @@ class DataService:
                 self.station_config.append(station_obj)
 
                 line = configFile.readline()
-
+            # print('sttion', self.station_config)
 
     def get_map(self, station_id):
         map_path = None
@@ -52,5 +63,28 @@ class DataService:
             legend_config = json.load(map_file)
             return {
                 'stationId': station_id,
-                'legendConfig': legend_config
+                'legendConfig': legend_config}
+
+    def get_recent_records(self, start, time_range):
+        collection = self.db['posts']
+        num = 0
+        recent_arr = []
+        start_time = time.time()
+        for record in collection.find({
+            'time_stamp':{
+                '$gte': start,
+                '$lt': (start + time_range)
             }
+        }).sort('time_stamp', pymongo.ASCENDING):
+            del record['_id']
+            del record['map_data']
+            recent_arr.append(record)
+        # recent_arr = sorted(recent_arr, key=lambda tup: tup['time_stamp'], reverse=False)
+
+        print('time', len(recent_arr), time.time() - start_time)
+        return recent_arr
+
+
+if __name__ == '__main__':
+    dataService = DataService(None)
+    dataService.get_recent_records(0, 5)
