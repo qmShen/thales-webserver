@@ -1,6 +1,7 @@
 # StationId, StationName, StationMap
 import time
 import json
+import ast
 from pymongo import MongoClient
 import pymongo
 HOST = '127.0.0.1'
@@ -78,10 +79,19 @@ class DataService:
         }).sort('time_stamp', pymongo.ASCENDING):
             del record['_id']
             del record['map_data']
+            tmp1 = record['small_clusters'].lstrip('[(').rstrip(')]').split('), (')
+            tmp2 = [x.split(',') for x in tmp1]
+            tmp3 = []
+            for item in tmp2:
+                if len(item) == 6:
+                    tmp3.append([int(item[0]), int(item[1]), float(item[2]), float(item[3]), float(item[4]), item[5].strip()])
+            # print(tmp3)
+            record['small_clusters'] = tmp3
             recent_arr.append(record)
         # recent_arr = sorted(recent_arr, key=lambda tup: tup['time_stamp'], reverse=False)
 
         print('time', len(recent_arr), time.time() - start_time)
+        # print(recent_arr)
         return recent_arr
 
 
