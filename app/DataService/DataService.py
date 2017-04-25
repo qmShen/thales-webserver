@@ -1,7 +1,6 @@
 # StationId, StationName, StationMap
 import time
 import json
-import ast
 from pymongo import MongoClient
 import pymongo
 HOST = '127.0.0.1'
@@ -97,4 +96,4 @@ class DataService:
 
 if __name__ == '__main__':
     dataService = DataService(None)
-    dataService.get_recent_records(0, 5)
+    dataService.get_recent_records(0, 100)
